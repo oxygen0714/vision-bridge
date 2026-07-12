@@ -1,0 +1,43 @@
+{
+  "name": "vision-bridge",
+  "version": "1.0.0",
+  "description": "Give your local LLM the gift of sight — screenshot + vision model = text description for any AI. 给你的 LLM 装上眼睛。",
+  "main": "vision.mjs",
+  "bin": {
+    "vision-bridge": "./vision.mjs"
+  },
+  "scripts": {
+    "screenshot": "node vision.mjs screenshot",
+    "file": "node vision.mjs file",
+    "watch": "node vision.mjs watch",
+    "check": "node vision.mjs check"
+  },
+  "keywords": [
+    "vision",
+    "llm",
+    "lm-studio",
+    "screenshot",
+    "multimodal",
+    "ai",
+    "deepseek",
+    "local-ai",
+    "claude",
+    "gemma",
+    "qwen",
+    "vision-language-model"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "screenshot-desktop": "^1.15.4",
+    "sharp": "^0.35.3"
+  }
+}

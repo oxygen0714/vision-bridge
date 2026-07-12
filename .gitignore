@@ -1,0 +1,11 @@
+node_modules/
+screenshot_*.png
+webcam_*.png
+*_resized.*
+*_rs.*
+*.jpg
+*.jpeg
+test-images/
+.env
+.DS_Store
+Thumbs.db
