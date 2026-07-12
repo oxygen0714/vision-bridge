@@ -5,54 +5,47 @@
   <img src="https://img.shields.io/badge/GPU-CUDA%20%7C%20Vulkan-orange" alt="GPU">
 </p>
 
-<h1 align="center">👁️ Vision Bridge</h1>
+<h1 align="center">👁️ 让你的 Claude Code 纯文本模型长出「眼睛」</h1>
 <p align="center">
-  <strong>给你的本地 LLM 装上眼睛 — 免费、本地、即插即用</strong><br>
-  <sub>English version: <a href="README.en.md">README.en.md</a></sub>
+  <strong>截图 → 本地视觉模型 → 文字描述 → 喂给 Claude Code / DeepSeek / 任意纯文本 LLM</strong><br>
+  <sub>100% 本地运行 · 零成本 · 即插即用</sub>
 </p>
 
 ---
 
 ## 🎯 一句话说清楚
 
-> **Vision Bridge 让不会看图的 LLM（DeepSeek / Claude / GPT / 本地模型）能够"看见"你的屏幕。**
+> Claude Code、DeepSeek、GPT 等纯文本模型**本来不会看图**。这个工具截一张屏，发给 LM Studio 里的本地视觉模型（Gemma-4 / Qwen2.5-VL），让它把画面翻译成文字，再喂给你的 LLM——**等于给纯文本模型装上了眼睛。**
 
-它截屏 → 发给 LM Studio 里的视觉模型 → 把画面翻译成文字 → 喂给你的 LLM。
+```
+你按 Win+Shift+S 框选 → Vision Bridge 从剪贴板读取 → 本地视觉模型看图说话 → Claude Code 读到描述
+```
 
 ## 🏗️ 原理
 
 ```
-你的屏幕/图片  →  Vision Bridge   →  LM Studio 视觉模型  →  文字描述  →  任意 LLM
-                 (截图+压缩+编码)    (Gemma-4/Qwen2.5-VL)               (理解 & 回复)
+┌──────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────────┐
+│  Win+Shift+S │ ──▶ │  Vision Bridge   │ ──▶ │  LM Studio       │ ──▶ │  Claude Code │
+│  框选截屏     │     │  剪贴板读取+压缩  │     │  Gemma-4 视觉模型 │     │  获得视觉能力 │
+└──────────────┘     └──────────────────┘     └─────────────────┘     └──────────────┘
 ```
 
 | 环节 | 做什么 |
 |------|--------|
-| ① 截图 | PowerShell / screenshot-desktop 捕获屏幕 |
-| ② 压缩 | 大图自动缩小 + 转 JPEG（2MB → 300KB） |
-| ③ 编码 | 转 base64，走 OpenAI 兼容 API |
-| ④ 理解 | 本地视觉模型看图说话 |
-| ⑤ 使用 | 文字描述喂给任何 LLM |
+| ① 你截图 | `Win+Shift+S` 框选任意区域，图片进剪贴板 |
+| ② 读取 | Vision Bridge 从剪贴板读取，自动压缩大图 |
+| ③ 看图 | 本地视觉模型（Gemma-4 等）分析画面 |
+| ④ 说话 | 返回文字描述，Claude Code 读到后就能"看见" |
 
-## ✨ 特性
+## ✨ 为什么用这个
 
-- 📸 **一键截屏分析** — 截图后自动描述屏幕内容
-- 🖼️ **任意图片分析** — 支持 PNG / JPG / WebP / BMP / GIF
-- 🔁 **持续观察模式** — 每 N 秒自动截屏，持续监控
-- 📐 **智能压缩** — 大图自动缩放到 2048px，压缩到 JPEG
-- 🔒 **100% 本地运行** — 数据不出你的电脑
-- 🎨 **简洁 CLI** — 一条命令搞定
-
-## ⭐ 推荐用法：零干扰截图
-
-**终端不会出现在截图里！**
-
-```
-1. 按 Win+Shift+S → 鼠标框选要分析的区域
-2. node vision.mjs clipboard "你的问题"
-```
-
-这是最佳方式——你手动选区域，Vision Bridge 从剪贴板读取，完全不会出现黑框干扰。
+| 痛点 | 解决 |
+|------|------|
+| Claude Code 不会看图 | ✅ 视觉模型代劳，返回文字描述 |
+| 云端 API 要钱 | ✅ 本地 LM Studio，完全免费 |
+| 数据隐私 | ✅ 所有处理都在你的电脑上 |
+| 全屏截图有命令行干扰 | ✅ 剪贴板模式，想截哪里截哪里 |
+| 模型选择困难 | ✅ 支持 Gemma-4 / Qwen2.5-VL / Llama 4… |
 
 ## 🚀 快速开始
 
@@ -60,131 +53,79 @@
 
 - [LM Studio](https://lmstudio.ai) ≥ 0.3.x
 - [Node.js](https://nodejs.org) ≥ 18
-- 一个视觉模型（推荐 Gemma-4-E4B-it 或 Qwen2.5-VL-7B）
-- NVIDIA GPU 推荐（RTX 2060+）
+- 一个视觉模型（推荐 Gemma-4-E4B-it，~6GB）
+- NVIDIA GPU 推荐
 
-### 1. 在 LM Studio 下载视觉模型
+### 1. 下载视觉模型
+
+LM Studio → 搜索 → 下载：
 
 | 模型 | 大小 | 效果 | 速度 |
 |------|------|------|------|
 | **Gemma-4-E4B-it** | ~6GB | ⭐⭐⭐ | ⚡⚡⚡ |
 | **Qwen2.5-VL-7B** | ~5GB | ⭐⭐⭐⭐ | ⚡⚡ |
-| **Llama 4 Scout** | ~12GB | ⭐⭐⭐⭐⭐ | ⚡ |
 
-### 2. 启动 LM Studio 服务
+### 2. 启动服务
 
 ```bash
 lms server start --port 1234
 ```
 
-### 3. 安装 Vision Bridge
+### 3. 安装
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/vision-bridge.git
+git clone https://github.com/oxygen0714/vision-bridge.git
 cd vision-bridge
 npm install
 ```
 
-### 4. 开始使用
+### 4. 使用（Claude Code 中）
 
-```bash
-# 截屏
-node vision.mjs screenshot
-
-# 带问题截屏
-node vision.mjs screenshot "这页PPT有什么问题？"
-
-# 分析图片
-node vision.mjs file ./photo.jpg
-
-# 持续观察（每10秒）
-node vision.mjs watch 10 "屏幕有什么变化？"
+```
+① 按 Win+Shift+S → 框选你想让 Claude 看的区域
+② ! node /c/Users/1/vision-bridge/vision.mjs clipboard
+③ Claude 就能"看见"了
 ```
 
 ## 📖 全部命令
 
 ```
-clipboard [问题]      从剪贴板读取图片分析 ⭐推荐
-screenshot [问题]     全屏截图分析
-  --minimize           截图前自动最小化终端
-  --delay N            延迟 N 秒后截图
-file <路径> [问题]    分析指定图片
-watch [秒] [问题]     持续监控模式
-serve [端口]          启动 Web 拖拽界面 (默认 :3456)
-check                 检查 API 连接
-```
-
-### 选项
-
-```
---model <模型名>    指定模型（默认 google/gemma-4-e4b）
---url  <地址>       指定 API 地址（默认 http://localhost:1234/v1）
-```
-
-### 环境变量
-
-```bash
-export VISION_MODEL="qwen2.5-vl-7b-instruct"
-export LMSTUDIO_URL="http://localhost:8080/v1"
+⭐ clipboard [问题]     从剪贴板读取 Win+Shift+S 的截图 (推荐!)
+   screenshot [问题]    全屏截图
+     --minimize          截图前最小化终端
+     --delay N           延迟 N 秒截图
+   file <路径> [问题]    分析本地图片
+   watch [秒] [问题]     持续监控
+   serve [端口]          启动 Web 拖拽界面
+   check                 检查 API 连接
 ```
 
 ## 💡 实战场景
 
 ```bash
-# 编程：看不懂的报错
-node vision.mjs screenshot "IDE 里的报错是什么意思？"
+# 代码报错，让 Claude 帮你看
+Win+Shift+S 框选报错区域
+! node /c/Users/1/vision-bridge/vision.mjs clipboard "这个报错怎么解决？"
 
-# 设计：UI 走查
-node vision.mjs file ./mockup.png "这个 UI 有什么可以改进的？"
+# UI 设计走查
+Win+Shift+S 框选界面
+! node /c/Users/1/vision-bridge/vision.mjs clipboard "这个 UI 有什么可以改进的？"
 
-# 科研：论文图表理解
-node vision.mjs file ./chart.png "总结这张图的趋势"
+# 论文图表理解
+! node /c/Users/1/vision-bridge/vision.mjs file ./chart.png "总结这张图的趋势"
 
-# 运维：监控大盘
-node vision.mjs watch 30 "部署状态变了吗？"
-
-# 学习：理解示意图
-node vision.mjs file ./diagram.jpg "解释这个架构图"
+# 监控部署状态
+! node /c/Users/1/vision-bridge/vision.mjs watch 30 "部署状态变了吗？"
 ```
-
-## 🔗 与 Claude Code 配合
-
-在对话中直接输入：
-
-```
-! node /c/Users/1/vision-bridge/vision.mjs screenshot
-```
-
-Claude 会读到视觉模型的描述，间接获得视觉能力。
-
-## 📦 依赖
-
-| 包 | 用途 |
-|----|------|
-| [`sharp`](https://www.npmjs.com/package/sharp) | 图片压缩与缩放 |
-
-核心功能使用 Node.js 内置模块（`fetch`, `fs`, `path`, `child_process`），无需额外网络依赖。
 
 ## 🐛 常见问题
 
 | 问题 | 解决 |
 |------|------|
-| `❌ API 无法连接` | 运行 `lms server start --port 1234` |
-| `❌ 找不到模型` | 用 `lms ps` 查看已加载的模型 |
-| `截图失败` | 确保 PowerShell 执行策略已放行 |
-| `回复为空` | 增大 `maxTokens`（推理模型需要更多 token） |
-| `速度慢` | 换更小的模型，或在 LM Studio 中启用 GPU |
-
-## 🤝 参与贡献
-
-欢迎提 Issue 和 PR！后续可以做的：
-
-- [ ] 摄像头实时画面支持
-- [ ] 截图区域选择
-- [ ] 实时流式视觉
-- [ ] MCP Server 集成
-- [ ] Docker 镜像
-- [ ] Python 版本
+| `❌ API 无法连接` | `lms server start --port 1234` |
+| `剪贴板为空` | 先 `Win+Shift+S` 截图，再运行命令 |
+| `回复为空` | 增大 `maxTokens`（Gemma-4 有思考 token） |
+| `速度慢` | 换更小的模型，或启用 GPU |
 
 ## 📄 开源协议
 
@@ -193,5 +134,5 @@ MIT — 详见 [LICENSE](LICENSE)
 ---
 
 <p align="center">
-  <sub>为本地 AI 社区 ❤️ 而生</sub>
+  <sub>为本地 AI 社区 ❤️ 而生 —— 让纯文本 LLM 也能看见世界</sub>
 </p>
