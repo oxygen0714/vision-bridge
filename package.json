@@ -30,8 +30,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/oxygen0714/vision-bridge.git"
   },
+  "bugs": {
+    "url": "https://github.com/oxygen0714/vision-bridge/issues"
+  },
+  "homepage": "https://github.com/oxygen0714/vision-bridge#readme",
   "engines": {
     "node": ">=18.0.0"
   },
