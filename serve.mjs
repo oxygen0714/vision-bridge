@@ -10,6 +10,7 @@ import { createServer } from "http";
 import { readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -317,9 +318,24 @@ export async function startServer(port, apiBase, model) {
   });
 
   server.listen(port, () => {
-    console.log(`\n  🌐 Web 界面已启动: http://localhost:${port}`);
+    const url = `http://localhost:${port}`;
+    console.log(`\n  🌐 Web 界面已启动: ${url}`);
     console.log(`     拖拽图片到网页 / Ctrl+V 粘贴截图 / 点击选择文件`);
     console.log(`     按 Ctrl+C 停止服务器\n`);
+
+    // Auto-open browser
+    try {
+      if (process.platform === "win32") {
+        execSync(`start "" "${url}"`, { shell: "cmd.exe", timeout: 3000 });
+      } else if (process.platform === "darwin") {
+        execSync(`open "${url}"`, { timeout: 3000 });
+      } else {
+        execSync(`xdg-open "${url}"`, { timeout: 3000 });
+      }
+      console.log(`  🚀 浏览器已自动打开: ${url}\n`);
+    } catch {
+      console.log(`  💡 请在浏览器中打开: ${url}\n`);
+    }
   });
 }
 
