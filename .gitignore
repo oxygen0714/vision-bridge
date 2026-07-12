@@ -1,5 +1,6 @@
 node_modules/
 screenshot_*.png
+clipboard_*.png
 webcam_*.png
 *_resized.*
 *_rs.*
