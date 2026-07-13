@@ -14,7 +14,7 @@
  */
 
 import { execSync } from "child_process";
-import { readFileSync, existsSync, unlinkSync } from "fs";
+import { readFileSync, existsSync, unlinkSync, readdirSync, statSync } from "fs";
 import { basename, join, dirname } from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -173,6 +173,54 @@ async function watchMode(intervalSec, prompt, apiBase, model) {
   process.on("SIGINT", () => { clearInterval(timer); console.log("\n👁️  已停止。"); process.exit(0); });
 }
 
+// ── 最新截图 — 自动从文件夹找最新文件 ──────────────────
+
+const DEFAULT_SCREENSHOT_DIRS = [
+  "C:/Users/1/Pictures/Screenshots",
+  `${process.env.USERPROFILE}/Pictures/Screenshots`,
+  `${process.env.HOME}/Pictures/Screenshots`,
+];
+
+function findLatestScreenshot(folder) {
+  const dirs = folder ? [folder] : DEFAULT_SCREENSHOT_DIRS;
+  for (const dir of dirs) {
+    if (!existsSync(dir)) continue;
+    const files = readdirSync(dir)
+      .filter(f => /\.(png|jpg|jpeg|webp|bmp)$/i.test(f))
+      .map(f => ({ name: f, time: statSync(join(dir, f)).mtimeMs, path: join(dir, f) }))
+      .sort((a, b) => b.time - a.time);
+    if (files.length > 0) return files[0];
+  }
+  return null;
+}
+
+// ── 持续监控 — 检测新截图自动分析 ────────────────────
+
+async function watchLatestMode(intervalSec, prompt, apiBase, model) {
+  console.log(`\n👁️  监控截图文件夹 (每 ${intervalSec}s), 新截图自动分析, Ctrl+C 退出\n`);
+
+  let lastTime = Date.now();
+
+  const check = async () => {
+    const latest = findLatestScreenshot();
+    if (latest && latest.time > lastTime) {
+      lastTime = latest.time;
+      const now = new Date().toLocaleTimeString("zh-CN");
+      console.log(`── ${now} | 📸 ${latest.name} ──`);
+      try {
+        const { reply, elapsed } = await analyzeImage(latest.path, prompt, apiBase, model);
+        console.log(`  ⏱️  ${elapsed}s`);
+        console.log(`  📝 ${reply.replace(/\n/g, "\n  ")}`);
+      } catch (e) {
+        console.log(`  ❌ ${e.message}`);
+      }
+    }
+  };
+
+  setInterval(check, intervalSec * 1000);
+  process.on("SIGINT", () => { console.log("\n👁️  已停止。"); process.exit(0); });
+}
+
 // ── API 检查 ─────────────────────────────────────────
 
 async function checkAPI(apiBase, model) {
@@ -215,6 +263,8 @@ function showHelp() {
 │ 命令                       │ 说明                        │
 ├──────────────────────────────────────────────────────────┤
 │ clipboard [问题]            │ 从剪贴板读取图片分析 ⭐     │
+│ latest [文件夹] [问题]       │ 自动找最新截图分析 🆕      │
+│ watch-latest [秒] [问题]     │ 监控截图文件夹新截图 🆕    │
 │ screenshot [问题] [选项]    │ 全屏截图分析               │
 │ file <路径> [问题]          │ 分析指定图片文件           │
 │ watch [秒] [问题]           │ 持续截图观察               │
@@ -336,6 +386,30 @@ async function main() {
         const port = parseInt(cmdArgs[0]) || 3456;
         const { startServer } = await import("./serve.mjs");
         await startServer(port, apiBase, resolvedModel);
+        break;
+      }
+
+      // ==== newest screenshot ====
+      case "latest": case "newest": case "last": {
+        const folder = cmdArgs[0] || null;
+        const prompt = cmdArgs[1] || "Describe this screenshot in detail including menus buttons dialogs code errors.";
+        const latest = findLatestScreenshot(folder);
+        if (!latest) {
+          console.error("ERROR: No screenshot found. Use Win+Shift+S to take a screenshot first.");
+          console.error(`Search path: ${folder || DEFAULT_SCREENSHOT_DIRS.join(", ")}`);
+          process.exit(1);
+        }
+        console.log(`  Screenshot: ${latest.name} (${new Date(latest.time).toLocaleTimeString("zh-CN")})`);
+        const { reply, elapsed } = await analyzeImage(latest.path, prompt, apiBase, resolvedModel);
+        console.log(`\n${elapsed}s\n${"-".repeat(50)}\n${reply}\n${"-".repeat(50)}`);
+        break;
+      }
+
+      // ==== monitor screenshot folder ====
+      case "watch-latest": case "wl": {
+        const interval = Math.max(1, parseInt(cmdArgs[0]) || 5);
+        const prompt = cmdArgs[1] || "Describe this screenshot in detail.";
+        await watchLatestMode(interval, prompt, apiBase, resolvedModel);
         break;
       }
 

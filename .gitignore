@@ -10,3 +10,4 @@ test-images/
 .env
 .DS_Store
 Thumbs.db
+*.bak

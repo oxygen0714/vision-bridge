@@ -82,15 +82,26 @@ npm install
 ### 4. 使用（Claude Code 中）
 
 ```
+# 方法一：剪贴板模式（推荐）
 ① 按 Win+Shift+S → 框选你想让 Claude 看的区域
 ② ! node /c/Users/1/vision-bridge/vision.mjs clipboard
 ③ Claude 就能"看见"了
+
+# 方法二：最新截图模式（更简单！）
+① 按 Win+Shift+S → 框选区域（自动保存到 Screenshots 文件夹）
+② ! node /c/Users/1/vision-bridge/vision.mjs latest
+③ 或者直接用快捷方式: ! C:\Users\1\vision-bridge\see.bat
+
+# 方法三：监控模式（自动分析每张新截图）
+! node /c/Users/1/vision-bridge/vision.mjs watch-latest 5
 ```
 
 ## 📖 全部命令
 
 ```
 ⭐ clipboard [问题]     从剪贴板读取 Win+Shift+S 的截图 (推荐!)
+🆕 latest [文件夹] [问题] 自动找最新截图分析
+🆕 watch-latest [秒] [问题] 监控截图文件夹，新截图自动分析
    screenshot [问题]    全屏截图
      --minimize          截图前最小化终端
      --delay N           延迟 N 秒截图
